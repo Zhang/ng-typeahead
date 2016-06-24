@@ -58,7 +58,7 @@ app.directive('ngTypeahead', function($log, $timeout) {
           if (scope.onType) {
             scope.onType(scope.search);
           }
-          return scope.showSuggestions = scope.suggestions.length && scope.search && scope.search.length > scope.threshold;
+          return scope.showSuggestions = scope.search && scope.search.length > scope.threshold;
         }
       });
       scope.$onBlur = function() {
