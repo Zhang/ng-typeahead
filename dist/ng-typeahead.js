@@ -7,14 +7,10 @@ app.directive('ngTypeahead', function($log, $timeout) {
     restrict: 'E',
     scope: {
       data: '=',
-      delay: "=?",
-      forceSelection: "=?",
-      limit: '=?',
       startFilter: "=?",
-      threshold: '=?',
-      onBlur: "=?",
       onSelect: '=?',
-      onType: "=?"
+      onType: "=?",
+      initialize: '=?'
     },
     require: "?ngModel",
     transclude: true,
@@ -27,25 +23,16 @@ app.directive('ngTypeahead', function($log, $timeout) {
         TAB: 9,
         ESC: 27
       };
+      if (scope.initialize) {
+        scope.search = scope.initialize;
+      }
       selectedLabel = scope.search;
       selecting = void 0;
       itemSelected = false;
       scope.index = 0;
-      if (!scope.delay) {
-        scope.delay = 0;
-      }
       scope.placeholder = attrs.placeholder;
       if (scope.startFilter === void 0) {
         scope.startFilter = true;
-      }
-      if (scope.limit === void 0) {
-        scope.limit = Infinity;
-      }
-      if (scope.threshold === void 0) {
-        scope.threshold = 0;
-      }
-      if (scope.forceSelection === void 0) {
-        scope.forceSelection = false;
       }
       scope.$watch("search", function(v) {
         scope.index = 0;
@@ -58,13 +45,10 @@ app.directive('ngTypeahead', function($log, $timeout) {
           if (scope.onType) {
             scope.onType(scope.search);
           }
-          return scope.showSuggestions = scope.search && scope.search.length > scope.threshold;
+          return scope.showSuggestions = scope.search;
         }
       });
       scope.$onBlur = function() {
-        if (!itemSelected && scope.forceSelection) {
-          scope.search = selectedLabel;
-        }
         return scope.showSuggestions = false;
       };
       scope.$onSelect = function(item) {
@@ -105,7 +89,7 @@ app.directive('ngTypeahead', function($log, $timeout) {
         }
       };
     },
-    template: "<input ng-model=\"search\" placeholder=\"{{placeholder}}\" ng-keydown=\"$onKeyDown($event)\" ng-model-options=\"{ debounce: delay }\" ng-blur=\"$onBlur()\" class=\"ng-typeahead-input\"/>\n<div class=\"ng-typeahead-wrapper\">\n  <ul class=\"ng-typeahead-list\" ng-show=\"showSuggestions\">\n    <li class=\"no-match\" ng-if=\"suggestions.length === 0\">No Matching Suggestions</li><li ng-if=\"suggestions.length > 0\" class=\"ng-typeahead-list-item\" ng-repeat=\"item in suggestions = (data | filter:search | startsWith:search:startFilter |limitTo: limit | highlight:search)\" ng-mousedown=\"$onSelect(item)\" ng-class=\"{'active': $index == index}\" ng-bind-html=\"item.html\"></li>\n    </ul>\n</div>\n<div ng-transclude>"
+    template: "<input ng-model=\"search\" placeholder=\"{{placeholder}}\" ng-keydown=\"$onKeyDown($event)\" ng-model-options=\"{ debounce: 0 }\" ng-blur=\"$onBlur()\" class=\"ng-typeahead-input\"/>\n<div class=\"ng-typeahead-wrapper\">\n  <ul class=\"ng-typeahead-list\" ng-show=\"showSuggestions\">\n    <li class=\"no-match\" ng-if=\"suggestions.length === 0\">No Matching Suggestions</li><li ng-if=\"suggestions.length > 0\" class=\"ng-typeahead-list-item\" ng-repeat=\"item in suggestions = (data | filter:search | startsWith:search:startFilter | highlight:search)\" ng-mousedown=\"$onSelect(item)\" ng-class=\"{'active': $index == index}\" ng-bind-html=\"item.html\"></li>\n    </ul>\n</div>\n<div ng-transclude>"
   };
 });
 
